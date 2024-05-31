@@ -264,7 +264,7 @@ export default function Home() {
                         </li>
                         <div className="flex justify-center">
                             <Link
-                                href="/confiryge/upload"
+                                href="/configure/upload"
                                 className={buttonVariants({
                                     size: "lg",
                                     className: "mx-auto mt-8",
