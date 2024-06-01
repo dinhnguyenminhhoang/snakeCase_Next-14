@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
+
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import { useUploadThing } from "@/lib/uploadthing";
@@ -8,38 +8,45 @@ import { Image, Loader2, MousePointerSquareDashed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import Dropzone, { FileRejection } from "react-dropzone";
-function page() {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+
+const Page = () => {
     const { toast } = useToast();
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
     const [uploadProgress, setUploadProgress] = useState<number>(0);
-    const route = useRouter();
+    const router = useRouter();
+
     const { startUpload, isUploading } = useUploadThing("imageUploader", {
         onClientUploadComplete: ([data]) => {
             const configId = data.serverData.configId;
             startTransition(() => {
-                route.push(`/configure/design?id=${configId}`);
+                router.push(`/configure/design?id=${configId}`);
             });
         },
         onUploadProgress(p) {
             setUploadProgress(p);
         },
     });
-    const onDropRejected = (rejectFile: FileRejection[]) => {
-        const [file] = rejectFile;
+
+    const onDropRejected = (rejectedFiles: FileRejection[]) => {
+        const [file] = rejectedFiles;
+
         setIsDragOver(false);
+
         toast({
-            title: `${file.file.type} type is not supported`,
-            description: "please choose a PNG, JPG, or JPEG image instead",
+            title: `${file.file.type} type is not supported.`,
+            description: "Please choose a PNG, JPG, or JPEG image instead.",
             variant: "destructive",
         });
     };
-    const onDropAccepted = (accFile: File[]) => {
-        startUpload(accFile, { configId: undefined });
+
+    const onDropAccepted = (acceptedFiles: File[]) => {
+        startUpload(acceptedFiles, { configId: undefined });
+
         setIsDragOver(false);
     };
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+
     const [isPending, startTransition] = useTransition();
+
     return (
         <div
             className={cn(
@@ -90,19 +97,20 @@ function page() {
                                 ) : isDragOver ? (
                                     <p>
                                         <span className="font-semibold">
-                                            Drop fie
-                                        </span>
+                                            Drop file
+                                        </span>{" "}
                                         to upload
                                     </p>
                                 ) : (
                                     <p>
                                         <span className="font-semibold">
                                             Click to upload
-                                        </span>
+                                        </span>{" "}
                                         or drag and drop
                                     </p>
                                 )}
                             </div>
+
                             {isPending ? null : (
                                 <p className="text-xs text-zinc-500">
                                     PNG, JPG, JPEG
@@ -114,6 +122,6 @@ function page() {
             </div>
         </div>
     );
-}
+};
 
-export default page;
+export default Page;
