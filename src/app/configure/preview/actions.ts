@@ -25,6 +25,7 @@ export const createCheckoutSession = async ({
     if (!user) {
         throw new Error("You need to be logged in");
     }
+    console.log("fds", user.id, configuration.id);
 
     const { finish, material } = configuration;
 
@@ -34,15 +35,12 @@ export const createCheckoutSession = async ({
         price += PRODUCT_PRICES.material.polycarbonate;
 
     let order: Order | undefined = undefined;
-
     const existingOrder = await db.order.findFirst({
         where: {
             userId: user.id,
             configurationId: configuration.id,
         },
     });
-
-    console.log(user.id, configuration.id);
 
     if (existingOrder) {
         order = existingOrder;
@@ -68,15 +66,14 @@ export const createCheckoutSession = async ({
     const stripeSession = await stripe.checkout.sessions.create({
         success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
         cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/configure/preview?id=${configuration.id}`,
-        payment_method_types: ["card", "paypal"],
+        payment_method_types: ["card"],
         mode: "payment",
-        shipping_address_collection: { allowed_countries: ["DE", "US"] },
+        shipping_address_collection: { allowed_countries: ["VN", "US"] },
         metadata: {
             userId: user.id,
             orderId: order.id,
         },
         line_items: [{ price: product.default_price as string, quantity: 1 }],
     });
-
     return { url: stripeSession.url };
 };
